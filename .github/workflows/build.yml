@@ -1,0 +1,65 @@
+name: Build iOS Tweak
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Compile iOS Dynamic Library
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install dpkg ldid make
+
+      - name: Install Theos
+        run: |
+          git clone --recursive https://github.com/theos/theos.git "$HOME/theos"
+          echo "THEOS=$HOME/theos" >> "$GITHUB_ENV"
+
+      - name: Configure iOS SDK
+        run: |
+          SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
+          echo "SDKROOT=$SDK_PATH" >> "$GITHUB_ENV"
+          echo "SDK_PATH=$SDK_PATH"
+
+      - name: Build package
+        run: |
+          export THEOS="$HOME/theos"
+          export SDKROOT="$(xcrun --sdk iphoneos --show-sdk-path)"
+          make clean
+          make package FINALPACKAGE=1
+
+      - name: Verify build output
+        run: |
+          echo "Build artifacts:"
+          find packages -type f \( -name "*.deb" -o -name "*.dylib" \) -print
+          test -n "$(find packages -type f -name '*.deb' -print -quit)"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-tweak-build
+          path: |
+            packages/*.deb
+            packages/*.dylib
+          if-no-files-found: warn
+          retention-days: 14
