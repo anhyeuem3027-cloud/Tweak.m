@@ -1,0 +1,9 @@
+Package: com.example.educationaltweak
+Name: EducationalTweak
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Educational Objective-C iOS dynamic library.
+Maintainer: Developer
+Author: Developer
+Section: Tweaks
+Depends: mobilesubstrate
