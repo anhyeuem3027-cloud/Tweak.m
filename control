@@ -1,9 +1,9 @@
-Package: com.example.educationaltweak
-Name: EducationalTweak
+Package: com.thang.nokeybypass
+Name: NoKeyBypass
 Version: 1.0.0
 Architecture: iphoneos-arm
-Description: Educational Objective-C iOS dynamic library.
-Maintainer: Developer
-Author: Developer
+Description: Custom iOS dynamic library.
+Maintainer: Thang
+Author: Thang
 Section: Tweaks
 Depends: mobilesubstrate
