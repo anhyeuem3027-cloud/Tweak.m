@@ -1,26 +1,15 @@
 #import <Foundation/Foundation.h>
 
-// 1. Hook vào các lớp hoặc phương thức phổ biến của menu hack (như kiểm tra trạng thái kích hoạt)
-%subclass LicenseManager
-- (BOOL)isLicenseActivated {
-    return YES; // Luôn trả về giá trị ĐÃ KÍCH HOẠT
-}
-- (BOOL)checkKeyValid:(id)arg1 {
-    return YES;
-}
-%end
-
-// 2. Chặn và giả lập phản hồi HTTP nếu menu hack gọi API check key trực tiếp
 %hook NSURLSession
 
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
     
     NSString *urlString = [[request URL] absoluteString];
     
-    // Nếu phát hiện request liên quan đến việc check key, license hoặc api xác thực
+    // Nếu ứng dụng/menu hack gửi request kiểm tra key, license hoặc api xác thực
     if ([urlString containsString:@"api"] || [urlString containsString:@"license"] || [urlString containsString:@"key"] || [urlString containsString:@"check"] || [urlString containsString:@"auth"]) {
         
-        // Tạo JSON giả lập báo thành công 100% để menu tự động mở
+        // Tạo dữ liệu JSON giả lập báo thành công tuyệt đối
         NSDictionary *fakeDict = @{
             @"status": @"success",
             @"code": @200,
@@ -41,10 +30,9 @@
 
 %end
 
-// 3. Hàm khởi tạo khi tệp .dylib được tiêm vào game
 __attribute__((constructor))
 static void NoKeyBypassInit(void) {
     @autoreleasepool {
-        NSLog(@"[NoKeyBypass] Tệp dylib đã được tiêm và vô hiệu hóa key thành công!");
+        NSLog(@"[NoKeyBypass] Dylib loaded and active successfully!");
     }
 }
